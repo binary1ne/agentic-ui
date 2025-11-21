@@ -5,7 +5,7 @@ class DocumentSchema(Schema):
     id = fields.Int()
     filename = fields.Str()
     user_id = fields.Int()
-    uploaded_at = fields.Str()
+    uploaded_at = fields.Str(attribute='created_at')
     file_size = fields.Int(allow_none=True)
 
 class RagChatRequestSchema(Schema):

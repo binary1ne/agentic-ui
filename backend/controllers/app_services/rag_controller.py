@@ -1,39 +1,40 @@
-from flask import request
-from flask.views import MethodView
-from flask_smorest import abort, Blueprint as SmoreBlueprint
+from flask import request, jsonify
+from flask_restx import Namespace, Resource, fields, reqparse
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from marshmallow import Schema, fields
+from marshmallow import ValidationError
+from werkzeug.datastructures import FileStorage
 
-from services import RAGService, AuthService, GuardrailsService
-
-# Create blueprint
-rag_bp = SmoreBlueprint(
-    'rag',
-    __name__,
-    url_prefix='/api/rag',
-    description='LangChain Agentic RAG endpoints'
-)
-
-# Schemas
+from services.agentic_services.rag_service import RAGService
+from services.guardrails_services.guardrails_service import GuardrailsService
 from dtos.app_data.rag_dto import (
     DocumentSchema, RagChatRequestSchema, RagChatResponseSchema
 )
 
-# Routes
-@rag_bp.route('/upload')
-class UploadView(MethodView):
+from utils.marshmallow_utils import marshmallow_to_restx_model
+
+rag_ns = Namespace('rag', description='RAG (Retrieval Augmented Generation) operations')
+
+# Models for Swagger generated from Marshmallow Schemas
+document_model = marshmallow_to_restx_model(rag_ns, DocumentSchema)
+chat_request_model = marshmallow_to_restx_model(rag_ns, RagChatRequestSchema)
+chat_response_model = marshmallow_to_restx_model(rag_ns, RagChatResponseSchema)
+
+upload_parser = rag_ns.parser()
+upload_parser.add_argument('file', location='files', type=FileStorage, required=True, help='Document file')
+
+@rag_ns.route('/upload')
+class UploadDocument(Resource):
+    @rag_ns.doc('upload_document')
+    @rag_ns.expect(upload_parser)
+    @rag_ns.marshal_with(document_model, code=201)
     @jwt_required()
-    @rag_bp.response(201, DocumentSchema)
     def post(self):
         """Upload document for RAG"""
         try:
             user_id = get_jwt_identity()
             
-            # Get file from request
-            if 'file' not in request.files:
-                abort(400, message='No file provided')
-            
-            file = request.files['file']
+            args = upload_parser.parse_args()
+            file = args['file']
             
             # Initialize RAG service
             rag_service = RAGService()
@@ -41,21 +42,23 @@ class UploadView(MethodView):
             # Upload and process document
             document = rag_service.upload_document(file, user_id)
             
-            return document
+            return DocumentSchema().dump(document), 201
         except ValueError as e:
-            abort(400, message=str(e))
+            return {'message': str(e)}, 400
         except Exception as e:
-            abort(500, message=f'Upload failed: {str(e)}')
+            return {'message': f'Upload failed: {str(e)}'}, 500
 
-@rag_bp.route('/chat')
-class RAGChatView(MethodView):
+@rag_ns.route('/chat')
+class RagChat(Resource):
+    @rag_ns.doc('chat_rag')
+    @rag_ns.expect(chat_request_model)
+    @rag_ns.marshal_with(chat_response_model)
     @jwt_required()
-    @rag_bp.arguments(RagChatRequestSchema)
-    @rag_bp.response(200, RagChatResponseSchema)
-    def post(self, data):
+    def post(self):
         """Chat with documents using RAG"""
         try:
             user_id = get_jwt_identity()
+            data = RagChatRequestSchema().load(request.get_json())
             
             # Check guardrails on input
             guardrails_result = GuardrailsService.check_content(
@@ -65,8 +68,7 @@ class RAGChatView(MethodView):
             )
             
             if not guardrails_result['passed']:
-                abort(400, message='Content violates guardrails', 
-                      violations=guardrails_result['violations'])
+                rag_ns.abort(400, 'Content violates guardrails', violations=guardrails_result['violations'])
             
             # Initialize RAG service
             rag_service = RAGService()
@@ -88,28 +90,33 @@ class RAGChatView(MethodView):
             if not output_check['passed']:
                 response['answer'] = output_check['cleaned_content']
             
-            return response
+            return RagChatResponseSchema().dump(response), 200
+        except ValidationError as err:
+            return err.messages, 400
         except ValueError as e:
-            abort(400, message=str(e))
+            return {'message': str(e)}, 400
         except Exception as e:
-            abort(500, message=f'Chat failed: {str(e)}')
+            return {'message': f'Chat failed: {str(e)}'}, 500
 
-@rag_bp.route('/documents')
-class DocumentsView(MethodView):
+@rag_ns.route('/documents')
+class DocumentList(Resource):
+    @rag_ns.doc('list_documents')
+    @rag_ns.marshal_list_with(document_model)
     @jwt_required()
-    @rag_bp.response(200, DocumentSchema(many=True))
     def get(self):
         """Get user's documents"""
         try:
             user_id = get_jwt_identity()
             rag_service = RAGService()
             documents = rag_service.get_user_documents(user_id)
-            return documents
+            return DocumentSchema(many=True).dump(documents), 200
         except Exception as e:
-            abort(500, message=str(e))
+            return {'message': str(e)}, 500
 
-@rag_bp.route('/documents/<int:document_id>')
-class DocumentView(MethodView):
+@rag_ns.route('/documents/<int:document_id>')
+@rag_ns.param('document_id', 'Document ID')
+class Document(Resource):
+    @rag_ns.doc('delete_document')
     @jwt_required()
     def delete(self, document_id):
         """Delete document"""
@@ -117,8 +124,8 @@ class DocumentView(MethodView):
             user_id = get_jwt_identity()
             rag_service = RAGService()
             result = rag_service.delete_document(document_id, user_id)
-            return result
+            return result, 200
         except ValueError as e:
-            abort(404, message=str(e))
+            return {'message': str(e)}, 404
         except Exception as e:
-            abort(500, message=str(e))
+            return {'message': str(e)}, 500

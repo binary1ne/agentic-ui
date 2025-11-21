@@ -5,21 +5,24 @@ from dotenv import load_dotenv
 # Load environment variables
 load_dotenv()
 
+
 class Config:
     """Application configuration"""
     
     # Flask
-    SECRET_KEY = os.getenv('SECRET_KEY', 'dev-secret-key-change-in-production')
     DEBUG = os.getenv('FLASK_DEBUG', 'True') == 'True'
-    
-    # Database
-    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URI', 'sqlite:///app.db')
-    SQLALCHEMY_TRACK_MODIFICATIONS = False
-    
-    # JWT
-    JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY', 'dev-jwt-secret-change-in-production')
-    JWT_ACCESS_TOKEN_EXPIRES = timedelta(seconds=int(os.getenv('JWT_ACCESS_TOKEN_EXPIRES', 3600)))
-    
+
+    #JWT
+    SECRET_KEY = os.getenv('SECRET_KEY', '')
+    JWT_SECRET_KEY=os.getenv('JWT_SECRET_KEY', '')
+    JWT_TOKEN_LOCATION=["headers","cookies"]
+    JWT_ACCESS_TOKEN_EXPIRES=timedelta(hours=0,minutes=20)
+
+    #Database
+    SQLALCHEMY_DATABASE_URI=os.getenv('DATABASE_URI', '')
+    SQLALCHEMY_TRACK_MODIFICATIONS=False 
+
+
     # API Configuration
     API_TITLE = 'Enterprise Flask Microservice'
     API_VERSION = 'v1'
@@ -31,7 +34,12 @@ class Config:
     # CORS
     CORS_ORIGINS = ['http://localhost:4200', 'http://127.0.0.1:4200']
     
-    # Google Gemini
+    # OpenAI
+    OPENAI_API_KEY = os.getenv('OPENAI_API_KEY', '')
+    OPENAI_MODEL = 'gpt-4o'
+    OPENAI_BASE_URL = os.getenv('OPENAI_BASE_URL', '')
+    
+    # Google Gemini (Deprecated)
     GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY', '')
     GEMINI_MODEL = 'gemini-2.0-flash-exp'
     
@@ -48,6 +56,13 @@ class Config:
     # File Upload
     MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16MB max file size
     ALLOWED_EXTENSIONS = {'pdf', 'txt', 'docx', 'doc', 'md'}
+
+    # SMTP Configuration
+    SMTP_SERVER = os.getenv('SMTP_SERVER', 'smtp.gmail.com')
+    SMTP_PORT = int(os.getenv('SMTP_PORT', 587))
+    SMTP_USERNAME = os.getenv('SMTP_USERNAME', '')
+    SMTP_PASSWORD = os.getenv('SMTP_PASSWORD', '')
+    SMTP_SENDER_EMAIL = os.getenv('SMTP_SENDER_EMAIL', '')
     
     @staticmethod
     def init_app(app):

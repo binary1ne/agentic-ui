@@ -13,6 +13,7 @@ export const API_ENDPOINTS = {
         LOGIN: `${BASE_URL}/auth/login`,
         SIGNUP: `${BASE_URL}/auth/signup`,
         CHECK_EMAIL: `${BASE_URL}/auth/check-email`,
+        VERIFY_OTP: `${BASE_URL}/auth/verify-otp`,
         SIGNUP_CONFIG: `${BASE_URL}/auth/config/signup`,
     },
 

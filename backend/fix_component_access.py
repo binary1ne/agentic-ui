@@ -1,33 +1,46 @@
 from app import create_app
-from models import db, ComponentAccess, RoleEnum
+from models import db, ComponentRoleMappingModel, RoleModel
 
 app = create_app()
 
 with app.app_context():
     print("\nChecking Component Access for USER role:")
-    access_records = ComponentAccess.query.filter_by(role=RoleEnum.USER).all()
     
-    for record in access_records:
-        print(f"- {record.component_name}: {record.has_access}")
+    # Get user role
+    user_role = RoleModel.query.filter_by(role_name='user').first()
+    if not user_role:
+        print("User role not found")
+        exit()
         
-        # Fix: Ensure default is False for Agentic RAG if it was accidentally set to True
-        # But wait, the user says "I have Not Assigned...". 
-        # If it's True, it means it WAS assigned or initialized as True.
+    mappings = ComponentRoleMappingModel.query.filter_by(role_id=user_role.role_id).all()
+    
+    for mapping in mappings:
+        template_name = mapping.template.template_name if mapping.template else "Unknown"
+        print(f"- {template_name}: {mapping.active_flag}")
         
     print("\nResetting 'AGENTIC_RAG' to False for USER role (as per user request)...")
-    rag_access = ComponentAccess.query.filter_by(
-        role=RoleEnum.USER, 
-        component_name='AGENTIC_RAG'
-    ).first()
     
-    if rag_access:
-        rag_access.has_access = False
-        db.session.commit()
-        print("✓ Reset AGENTIC_RAG to False")
+    # Find AGENTIC_RAG template
+    from models import ComponentModel
+    rag_template = ComponentModel.query.filter_by(template_name='AGENTIC_RAG').first()
+    
+    if rag_template:
+        rag_mapping = ComponentRoleMappingModel.query.filter_by(
+            role_id=user_role.role_id, 
+            template_id=rag_template.template_id
+        ).first()
+        
+        if rag_mapping:
+            rag_mapping.active_flag = False
+            db.session.commit()
+            print("✓ Reset AGENTIC_RAG to False")
+        else:
+            print("! AGENTIC_RAG access record not found")
     else:
-        print("! AGENTIC_RAG access record not found")
+        print("! AGENTIC_RAG template not found")
         
     print("\nVerifying new state:")
-    access_records = ComponentAccess.query.filter_by(role=RoleEnum.USER).all()
-    for record in access_records:
-        print(f"- {record.component_name}: {record.has_access}")
+    mappings = ComponentRoleMappingModel.query.filter_by(role_id=user_role.role_id).all()
+    for mapping in mappings:
+        template_name = mapping.template.template_name if mapping.template else "Unknown"
+        print(f"- {template_name}: {mapping.active_flag}")

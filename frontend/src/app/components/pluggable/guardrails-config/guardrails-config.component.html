@@ -1,0 +1,23 @@
+<div class="card">
+    <h2 class="card-header">⚙️ Guardrails Configuration</h2>
+
+    <div class="space-y-3">
+        @for (rule of rules; track rule.id) {
+        <div class="p-4 bg-gray-50 rounded-lg">
+            <div class="flex items-center justify-between mb-2">
+                <div>
+                    <h3 class="font-semibold">{{ rule.rule_type }}</h3>
+                    <p class="text-sm text-gray-600">{{ rule.description }}</p>
+                </div>
+                <label class="flex items-center space-x-2">
+                    <input type="checkbox" [(ngModel)]="rule.enabled" (change)="toggleRule(rule)" class="rounded" />
+                    <span class="text-sm">{{ rule.enabled ? 'Enabled' : 'Disabled' }}</span>
+                </label>
+            </div>
+            <div class="text-xs text-gray-500">
+                Severity: <span class="font-semibold">{{ rule.severity }}</span>
+            </div>
+        </div>
+        }
+    </div>
+</div>

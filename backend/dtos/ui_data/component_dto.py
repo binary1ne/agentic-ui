@@ -13,10 +13,10 @@ class AssignComponentSchema(Schema):
 
 class ComponentAccessSchema(Schema):
     """Component access schema"""
-    id = fields.Int()
-    role = fields.Str()
-    component_name = fields.Str()
-    has_access = fields.Bool()
+    id = fields.Int(attribute='template_role_id')
+    role = fields.Str(attribute='role_name')
+    component_name = fields.Str(attribute='template_name')
+    has_access = fields.Bool(attribute='active_flag')
 
 class ComponentListResponseSchema(Schema):
     """Component list response schema"""
@@ -27,8 +27,10 @@ class NavigationItemSchema(Schema):
     name = fields.Str()
     label = fields.Str()
     icon = fields.Str()
-    description = fields.Str()
+    description = fields.Str(allow_none=True)
     admin_only = fields.Bool()
+    mode = fields.Str(allow_none=True)
+    value = fields.Str(allow_none=True)
 
 class NavigationResponseSchema(Schema):
     """Navigation response schema"""

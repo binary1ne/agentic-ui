@@ -1,13 +1,14 @@
 from flask import Flask
-from flask_smorest import Api
+from flask_restx import Api
 from flask_jwt_extended import JWTManager
 from flask_cors import CORS
-
+from dotenv import load_dotenv
 from config import Config
 from models import db
+
 from controllers import (
-    auth_bp, user_bp, rag_bp, chat_bp,
-    component_bp, guardrails_bp, role_bp
+    auth_ns, user_ns, rag_ns, chat_ns,
+    component_ns, guardrails_ns, role_ns
 )
 
 def create_app():
@@ -23,17 +24,28 @@ def create_app():
     jwt = JWTManager(app)
     CORS(app, origins=Config.CORS_ORIGINS)
     
-    # Initialize API
-    api = Api(app)
-    
     # Register blueprints
-    api.register_blueprint(auth_bp)
-    api.register_blueprint(user_bp)
-    api.register_blueprint(rag_bp)
-    api.register_blueprint(chat_bp)
-    api.register_blueprint(component_bp)
-    api.register_blueprint(guardrails_bp)
-    api.register_blueprint(role_bp)
+    # Initialize API
+    authorizations = {
+        'Bearer Auth': {
+            'type': 'apiKey',
+            'in': 'header',
+            'name': 'Authorization',
+            'description': 'Type in the "Value" input box below: **Bearer &lt;JWT&gt;**'
+        }
+    }
+    
+    api = Api(app, title='Enterprise API', version='1.0', doc='/docs', prefix='/api',authorizations=authorizations, security='Bearer Auth')
+       
+    # Register namespaces
+    api.add_namespace(auth_ns)
+    api.add_namespace(user_ns)
+    api.add_namespace(role_ns)
+    api.add_namespace(component_ns)
+    api.add_namespace(rag_ns)
+    api.add_namespace(chat_ns)
+    api.add_namespace(guardrails_ns)
+    
     # Initialize database and run migrations
     from migrations.init_db import init_db
     init_db(app)
@@ -44,8 +56,7 @@ def create_app():
         return {
             'status': 'running',
             'message': 'Enterprise Flask Microservice API',
-            'version': Config.API_VERSION,
-            'documentation': '/swagger-ui'
+            'version': 'v1'
         }
     
     @app.route('/health')
@@ -60,9 +71,7 @@ if __name__ == '__main__':
     print('\n' + '='*60)
     print('🚀 Enterprise Flask Microservice Starting...')
     print('='*60)
-    print(f'📚 API Documentation: http://localhost:5000/swagger-ui')
     print(f'🔐 Default Admin: admin@mail.com / password')
     print(f'⚠️  Remember to set GOOGLE_API_KEY in .env file')
     print('='*60 + '\n')
-    
     app.run(debug=True, host='0.0.0.0', port=5000)

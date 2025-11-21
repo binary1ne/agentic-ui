@@ -1,11 +1,12 @@
 from marshmallow import Schema, fields, validate
 
 class RoleSchema(Schema):
-    """Schema for role data"""
-    id = fields.Int(dump_only=True)
-    name = fields.Str(required=True, validate=validate.Length(min=1, max=50))
+    """Schema for role data - maps DB fields to frontend-friendly names"""
+    id = fields.Int(dump_only=True, attribute='role_id')
+    name = fields.Str(required=True, validate=validate.Length(min=1, max=50), attribute='role_name')
     description = fields.Str(allow_none=True, validate=validate.Length(max=255))
     created_at = fields.Str(dump_only=True)
+
 
 
 class RoleCreateSchema(Schema):

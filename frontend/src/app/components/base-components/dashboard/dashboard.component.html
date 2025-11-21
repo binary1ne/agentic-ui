@@ -1,0 +1,69 @@
+<div
+  class="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex flex-col"
+>
+  <app-header
+    [currentUser]="currentUser"
+    (goBack)="goBack()"
+    (logout)="handleLogout()"
+  ></app-header>
+
+  <div class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div *ngIf="currentView === 'child'" class="mb-6 animate-fade-in">
+      <button
+        (click)="goBack()"
+        class="group flex items-center text-gray-500 hover:text-primary-600 transition-colors font-medium text-sm"
+      >
+        <span
+          class="mr-2 p-1 rounded-lg bg-white border border-gray-200 group-hover:border-primary-200 group-hover:bg-primary-50 transition-all"
+        >
+          <!-- Back Icon SVG -->
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-4 w-4"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M10 19l-7-7m0 0l7-7m-7 7h18"
+            />
+          </svg>
+        </span>
+        Back to Dashboard
+      </button>
+    </div>
+
+    <div
+      *ngIf="currentView === 'home'"
+      class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+    >
+      <div
+        *ngIf="loading"
+        class="col-span-full flex justify-center items-center py-20"
+      >
+        <div
+          class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"
+        ></div>
+      </div>
+
+      <div
+        *ngFor="let item of navItems"
+        class="cursor-pointer p-6 bg-white rounded-xl shadow hover:shadow-lg transition flex flex-col items-start"
+        (click)="onCardClick(item)"
+      >
+        <div class="text-4xl mb-4 text-primary-500 not-italic leading-none">
+          {{ item.icon }}
+        </div>
+        <h3 class="text-lg font-bold">{{ item.label }}</h3>
+        <p class="text-gray-500 mt-1">{{ item.description }}</p>
+      </div>
+    </div>
+
+    <main class="animate-fade-in mt-6">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>

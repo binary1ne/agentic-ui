@@ -14,6 +14,9 @@ export interface Role {
     providedIn: 'root'
 })
 export class RoleService {
+    getRoles() {
+      throw new Error('Method not implemented.');
+    }
     constructor(private http: HttpClient) { }
 
     getAllRoles(): Observable<Role[]> {

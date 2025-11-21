@@ -1,6 +1,7 @@
-import { HttpInterceptorFn } from '@angular/common/http';
+// jwt.interceptor.tsmport { HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { AuthService } from '../services/auth.service';
+import { HttpInterceptorFn } from '@angular/common/http';
 
 export const jwtInterceptor: HttpInterceptorFn = (req, next) => {
     const authService = inject(AuthService);
@@ -13,6 +14,6 @@ export const jwtInterceptor: HttpInterceptorFn = (req, next) => {
             }
         });
     }
-
+    // console.log("JWT Interceptor",token);
     return next(req);
 };

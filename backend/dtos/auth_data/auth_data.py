@@ -37,3 +37,7 @@ class CheckEmailResponseSchema(Schema):
     exists = fields.Bool()
     roles = fields.List(fields.Str())
     full_name = fields.Str()
+
+class SignupConfigSchema(Schema):
+    """Signup configuration schema"""
+    enabled = fields.Bool(required=True, description='Enable/Disable signup')

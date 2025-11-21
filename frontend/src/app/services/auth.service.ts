@@ -9,12 +9,17 @@ export interface User {
     full_name?: string;
     roles: string[];
     activeRole?: string; // The role currently being used
+    file_upload_enabled?: boolean;
+    two_factor_auth_enabled?: boolean;
     created_at: string;
 }
 
 export interface LoginResponse {
     user: User;
     access_token: string;
+    requires_2fa?: boolean;
+    message?: string;
+    email?: string;
 }
 
 @Injectable({
@@ -57,6 +62,20 @@ export class AuthService {
         return this.http.post<LoginResponse>(API_ENDPOINTS.AUTH.LOGIN, {
             email,
             password,
+            role
+        }).pipe(
+            tap(response => {
+                if (!response.requires_2fa) {
+                    this.handleAuthResponse(response);
+                }
+            })
+        );
+    }
+
+    verifyOtp(email: string, otp: string, role?: string): Observable<LoginResponse> {
+        return this.http.post<LoginResponse>(API_ENDPOINTS.AUTH.VERIFY_OTP || '/api/auth/verify-otp', {
+            email,
+            otp,
             role
         }).pipe(
             tap(response => this.handleAuthResponse(response))

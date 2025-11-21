@@ -1,41 +1,41 @@
 # Flask Framework
 Flask
-flask-smorest
-flask-cors==4.0.0
+flask-cors
 
 # Database
-SQLAlchemy==2.0.23
-Flask-SQLAlchemy==3.1.1
+SQLAlchemy
+Flask-SQLAlchemy
 
 # Authentication
-Flask-JWT-Extended==4.6.0
-bcrypt==4.1.2
+Flask-JWT-Extended
+bcrypt
 
 # LangChain & AI
 langchain
-langchain-google-genai
-langchain-community
 langgraph
-google-generativeai
+langchain-openai
+langchain-community
+
 
 # Vector Stores & Embeddings
-chromadb==0.4.22
-faiss-cpu==1.7.4
-sentence-transformers==2.3.1
+chromadb
+faiss-cpu
+# sentence-transformers==2.3.1
 
 # Document Processing
-pypdf==4.0.0
-python-docx==1.1.0
-python-multipart==0.0.6
+pypdf
+python-docx
+python-multipart
 
 # Utilities
-python-dotenv==1.0.0
-marshmallow==3.20.1
-requests==2.31.0
-pydantic==2.5.3
+python-dotenv
+marshmallow
+requests
+pydantic
 
 # Web Search (Optional)
-duckduckgo-search==4.1.1
+duckduckgo-search
 
 # Development
-watchdog==3.0.0
+watchdog
+flask-restx

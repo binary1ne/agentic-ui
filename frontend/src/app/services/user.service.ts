@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { API_ENDPOINTS } from '../../environments/api_controller';
 import { User } from './auth.service';
+import { Role } from './role.service';
 
 @Injectable({
     providedIn: 'root'
@@ -18,18 +19,22 @@ export class UserService {
         return this.http.get<User>(API_ENDPOINTS.USERS.BY_ID(id));
     }
 
-    createUser(email: string, password: string, role: string = 'user', fullName?: string): Observable<User> {
+    createUser(email: string, password: string, role: string = 'user', fullName?: string, fileUploadEnabled: boolean = false, twoFactorEnabled: boolean = false): Observable<User> {
         return this.http.post<User>(API_ENDPOINTS.USERS.BASE, {
             email,
             password,
             role,
-            full_name: fullName
+            full_name: fullName,
+            file_upload_enabled: fileUploadEnabled,
+            two_factor_auth_enabled: twoFactorEnabled
         });
     }
 
     updateUser(id: number, data: Partial<User>): Observable<User> {
         return this.http.put<User>(API_ENDPOINTS.USERS.BY_ID(id), data);
     }
+
+    
 
     updateUserRole(id: number, role: string): Observable<User> {
         return this.updateUser(id, { roles: [role] });
