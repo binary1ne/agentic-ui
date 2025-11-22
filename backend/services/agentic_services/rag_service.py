@@ -12,8 +12,8 @@ from langchain_community.vectorstores import Chroma
 from langchain_community.tools import DuckDuckGoSearchRun
 
 from models import db
-from models.agentic_entities.document import Document
-from models.agentic_entities.chat import ChatHistory
+from models import Document, ChatHistory
+
 from services.auth_services.auth_service import AuthService
 from config import Config
 

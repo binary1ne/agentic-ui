@@ -1,7 +1,5 @@
 from models import db
-from models.auth_entities import UserDetailsModel, RoleModel, UserRoleMappingModel
-from models.component_entities import ComponentModel, ComponentRoleMappingModel
-from models.agentic_entities.system import SystemConfig
+from models import UserDetailsModel, RoleModel, UserRoleMappingModel,ComponentModel,ComponentRoleMappingModel,SystemConfig
 from services.auth_services.auth_service import AuthService
 
 def init_db(app):

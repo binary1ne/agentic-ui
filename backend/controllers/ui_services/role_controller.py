@@ -4,7 +4,7 @@ from flask_jwt_extended import jwt_required
 from marshmallow import ValidationError
 
 from models import db
-from models.auth_entities import RoleModel
+from models import RoleModel
 from services.auth_services.auth_service import AuthService
 from dtos.role_dto import RoleSchema, RoleCreateSchema, RoleUpdateSchema, AssignRolesSchema
 

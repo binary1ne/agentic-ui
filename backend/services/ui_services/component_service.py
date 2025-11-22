@@ -1,6 +1,5 @@
 from models import db
-from models.component_entities import ComponentModel, ComponentRoleMappingModel
-from models.auth_entities import RoleModel
+from models import ComponentModel, ComponentRoleMappingModel, RoleModel
 from services.auth_services.auth_service import AuthService
 
 class ComponentService:

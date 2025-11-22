@@ -7,7 +7,7 @@ from langchain_community.tools import DuckDuckGoSearchRun
 from langchain_core.messages import HumanMessage
 
 from models import db
-from models.agentic_entities.chat import ChatHistory
+from models import ChatHistory
 from services.auth_services.auth_service import AuthService
 from config import Config
 

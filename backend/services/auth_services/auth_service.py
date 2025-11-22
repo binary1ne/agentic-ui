@@ -2,10 +2,11 @@ from datetime import datetime, timedelta
 import random
 import string
 from flask_jwt_extended import create_access_token
-from models import db
-from models.auth_entities import UserDetailsModel, RoleModel, UserRoleMappingModel
+
 from .email_service import EmailService
 from config import Config
+from models import db
+from models import UserDetailsModel, RoleModel, UserRoleMappingModel
 
 from .otp_store import OTPStore
 

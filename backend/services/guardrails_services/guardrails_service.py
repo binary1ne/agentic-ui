@@ -1,7 +1,7 @@
 import re
 from datetime import datetime
 from models import db
-from models.guardrails_entities import GuardrailsConfig, GuardrailsLog
+from models import GuardrailsConfig, GuardrailsLog
 from services.auth_services.auth_service import AuthService
 from config import Config
 
